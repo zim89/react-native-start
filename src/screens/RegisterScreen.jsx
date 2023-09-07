@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { KeyboardElement, BoxAuth, Background } from '../../components/containers';
-import { RegisterForm } from '../../components/forms';
-import { Link } from '../../components/elements';
+import { KeyboardElement, BoxAuth, Background } from '../components/containers';
+import { RegisterForm } from '../components/forms';
+import { Link } from '../components/elements';
 
-import bgImage from '../../assets/images/bg_image.jpg';
+import bgImage from '../assets/images/bg_image.jpg';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();

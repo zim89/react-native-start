@@ -1,11 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { KeyboardElement, BoxAuth, Background } from '../../components/containers';
-import { LoginForm } from '../../components/forms';
-import { Link } from '../../components/elements';
+import { KeyboardElement, BoxAuth, Background } from '../components/containers';
+import { LoginForm } from '../components/forms';
+import { Link } from '../components/elements';
 
-import bgImage from '../../assets/images/bg_image.jpg';
+import bgImage from '../assets/images/bg_image.jpg';
 
 const LoginScreen = () => {
   const navigation = useNavigation();

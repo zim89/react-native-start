@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View } from 'react-native';
-import { Box } from '../../components/containers';
-import { Background } from '../../components/containers';
+import { Box } from '../components/containers';
+import { Background } from '../components/containers';
 
-import bgImage from '../../assets/images/bg_image.jpg';
-import { LogoutButton } from '../../components/elements';
-import { ProfileImage } from '../../components/forms/image';
-import PostList from '../../components/PostList';
+import bgImage from '../assets/images/bg_image.jpg';
+import { LogoutButton } from '../components/elements';
+import { ProfileImage } from '../components/forms/image';
+import PostList from '../components/PostList';
 
-import { posts } from '../../mock/posts';
+import { posts } from '../mock/posts';
 
 const ProfileScreen = () => {
   return (

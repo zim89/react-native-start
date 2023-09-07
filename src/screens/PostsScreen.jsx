@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import { StyleSheet } from 'react-native';
-import { Box } from '../../components/containers';
-import UserInfo from '../../components/UserInfo';
-import PostList from '../../components/PostList';
+import { Box } from '../components/containers';
+import UserInfo from '../components/UserInfo';
+import PostList from '../components/PostList';
 
-import { posts } from '../../mock/posts.js';
+import { posts } from '../mock/posts.js';
 
 const PostsScreen = () => {
   return (

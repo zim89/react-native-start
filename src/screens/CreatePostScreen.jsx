@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from 'react-native';
 
-import { KeyboardElement, Box } from '../../components/containers';
-import { CreatePostForm } from '../../components/forms';
+import { KeyboardElement, Box } from '../components/containers';
+import { CreatePostForm } from '../components/forms';
 
 const CreatePostScreen = () => {
   return (
