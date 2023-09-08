@@ -1,6 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { LoginScreen, RegisterScreen, Home, CommentsScreen, MapScreen } from '../screens';
+import { LoginScreen, RegisterScreen, CommentsScreen, MapScreen } from '../screens';
+import Home from "../screens/Home";
 import { TitleHeader, GoBackButton } from '../components/elements';
 
 const MainStack = createStackNavigator();
