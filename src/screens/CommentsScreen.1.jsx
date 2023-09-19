@@ -1,25 +1,15 @@
-import {
-  StyleSheet,
-  View,
-  Image,
-  TextInput,
-  Text,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { View, Image, TextInput, Text, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { Feather } from '@expo/vector-icons';
 import { collection, addDoc, onSnapshot } from 'firebase/firestore';
-
 import { db } from '../configs/firebase';
 import { selectUser } from '../redux/slices/authSlice';
 import CommentItem from '../components/CommentItem';
-import { Input } from '../components/forms/input';
+import { styles } from './CommentsScreen';
 
-const CommentsScreen = ({ route }) => {
+export const CommentsScreen = ({ route }) => {
   const { id, url } = route.params;
 
   const [comment, setComment] = useState('');
@@ -80,7 +70,7 @@ const CommentsScreen = ({ route }) => {
         </ScrollView>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.inputWrap}>
-            {/* <TextInput
+            <TextInput
               name='comment'
               value={comment}
               placeholder='Коментувати...'
@@ -88,13 +78,6 @@ const CommentsScreen = ({ route }) => {
               style={isFocused ? { ...styles.input, borderColor: '#2765b8' } : { ...styles.input }}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              onChangeText={(value) => setComment(value)}
-            /> */}
-            <Input
-              style={styles.input}
-              name='comment'
-              value={comment}
-              placeholder='Коментувати...'
               onChangeText={(value) => setComment(value)}
             />
             <View style={styles.sendBtn}>
@@ -106,67 +89,3 @@ const CommentsScreen = ({ route }) => {
     </TouchableWithoutFeedback>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 32,
-    paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 0.5,
-    borderBottomWidth: -0.5,
-    borderTopColor: 'rgba(0, 0, 0, 0.30)',
-    borderBottomColor: 'rgba(0, 0, 0, 0.30)',
-  },
-  postPhotoWrap: {
-    width: '100%',
-    height: 240,
-    backgroundColor: '#F6F6F6',
-    borderRadius: 8,
-    marginBottom: 32,
-  },
-  postPhoto: {
-    width: '100%',
-    height: 240,
-    borderRadius: 8,
-  },
-  inputWrap: {
-    marginTop: 31,
-    marginBottom: 16,
-  },
-  // input: {
-  //   height: 50,
-  //   fontFamily: 'Roboto-Regular',
-  //   fontSize: 16,
-  //   backgroundColor: '#F6F6F6',
-  //   borderColor: '#E8E8E8',
-  //   borderWidth: 1,
-  //   borderRadius: 100,
-  //   paddingTop: 16,
-  //   paddingHorizontal: 16,
-  //   paddingBottom: 15,
-  // },
-  input: {
-    borderRadius: 100,
-  },
-  sendBtn: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 34,
-    height: 34,
-    backgroundColor: '#FF6C00',
-    borderRadius: 100,
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  text: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-});
-
-export default CommentsScreen;

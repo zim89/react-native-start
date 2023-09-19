@@ -1,15 +1,17 @@
-import PropTypes from 'prop-types';
 import { View, Image, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 
-import userImage from '../assets/images/avatars/user-img.png';
+import { selectUser } from '../redux/slices/authSlice';
 
 const UserInfo = ({ style }) => {
+  const { username, email, picture } = useSelector(selectUser) ?? {};
+
   return (
     <View style={[styles.container, style]}>
-      <Image style={styles.image} source={userImage} />
+      <Image style={styles.image} source={{ uri: picture }} />
       <View>
-        <Text style={styles.name}>Natali Romanova</Text>
-        <Text style={styles.email}>email@example.com</Text>
+        <Text style={styles.name}>{username}</Text>
+        <Text style={styles.email}>{email}</Text>
       </View>
     </View>
   );
@@ -22,6 +24,12 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
   },
+  image: {
+    borderRadius: 16,
+    width: 60,
+    height: 60,
+    backgroundColor: '#f6f6f6',
+  },
   name: {
     color: '#212121',
     fontFamily: 'Roboto-Bold',
@@ -31,12 +39,6 @@ const styles = StyleSheet.create({
     color: 'rgba(33 33 33 / 0.8)',
     fontFamily: 'Roboto-Regular',
     fontSize: 11,
-  },
-  image: {
-    borderRadius: 16,
-    width: 60,
-    height: 60,
-    backgroundColor: '#f6f6f6',
   },
 });
 

@@ -1,21 +1,42 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Controller, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Title } from '../elements';
+import { Button, Title, ErrorText } from '../elements';
 import { Input, InputPass } from '../forms/input';
-import { useNavigation } from '@react-navigation/native';
+import { parseAuthError } from '../../helpers';
+import { auth } from '../../configs/firebase';
+import { setUser } from '../../redux/slices/authSlice';
 
 const LoginForm = ({ style }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  const handleLogin = () => {
-    console.log({ email, password });
-    setEmail('');
-    setPassword('');
-    navigation.navigate('Home', { sessionId: 45, userId: '22e24' });
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async ({ email, password }) => {
+    try {
+      email = email.trim();
+      password = password.trim();
+      const credentials = await signInWithEmailAndPassword(auth, email, password);
+      const { uid, displayName: username, photoURL: picture, email: userEmail } = credentials.user;
+      dispatch(setUser({ uid, username, email: userEmail, picture }));
+      reset();
+    } catch (err) {
+      const [name, message] = parseAuthError(err);
+      setError(name, { type: 'custom', message });
+    }
   };
 
   return (
@@ -24,29 +45,40 @@ const LoginForm = ({ style }) => {
 
       {/* EMAIL field */}
       <View style={styles.input}>
-        <Input
-          placeholder='Адреса електронної пошти'
-          autoComplete='email'
-          keyboardType='email-address'
+        {errors.email && <ErrorText text={errors.email.message} />}
+        <Controller
+          control={control}
+          rules={{ required: "Це поле - обов'язкове" }}
+          render={({ field: { onChange, value } }) => (
+            <Input
+              autoComplete='email'
+              keyboardType='email-address'
+              placeholder='Адреса електронної пошти'
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
           name='email'
-          onChangeText={setEmail}
-          value={email}
         />
       </View>
 
       {/* PASSWORD field */}
       <View style={styles.passInput}>
-        <InputPass onChangeText={setPassword} value={password} />
+        {errors.password && <ErrorText text={errors.password.message} />}
+        <Controller
+          control={control}
+          rules={{ required: "Це поле - обов'язкове" }}
+          render={({ field: { onChange, value } }) => <InputPass onChangeText={onChange} value={value} />}
+          name='password'
+        />
       </View>
 
+      {errors.root && <ErrorText style={{ textAlign: 'center', marginBottom: 24 }} text={errors.root.message} />}
+
       {/* SUBMIT button */}
-      <Button label='Увійти' onPress={handleLogin} />
+      <Button label='Увійти' onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
     </View>
   );
-};
-
-LoginForm.propTypes = {
-  style: PropTypes.object,
 };
 
 const styles = StyleSheet.create({
@@ -57,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   passInput: {
-    marginBottom: 43,
+    marginBottom: 35,
   },
 });
 

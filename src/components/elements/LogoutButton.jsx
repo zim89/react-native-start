@@ -1,14 +1,19 @@
-import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { signOut } from 'firebase/auth';
+import { useDispatch } from 'react-redux';
+
+import { auth } from '../../configs/firebase';
+import { setUser } from '../../redux/slices/authSlice';
 
 const LogoutButton = () => {
-  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    navigation.navigate('Login');
+    signOut(auth);
+    dispatch(setUser(null));
   };
+
   return (
     <TouchableOpacity activeOpacity={0.6} onPress={handleLogout}>
       <Feather name='log-out' size={24} color='#bdbdbd' />

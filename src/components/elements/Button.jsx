@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 
-const Button = ({ label, style, onPress, disabled = false }) => {
+const Button = ({ label, style, onPress, disabled = false, styleTitle }) => {
   return (
     <TouchableOpacity style={style} activeOpacity={0.75} onPress={onPress} disabled={disabled}>
       <View style={[styles.button, disabled && styles.buttonDisabled]}>
@@ -9,13 +9,6 @@ const Button = ({ label, style, onPress, disabled = false }) => {
       </View>
     </TouchableOpacity>
   );
-};
-
-Button.propTypes = {
-  label: PropTypes.string.isRequired,
-  style: PropTypes.object,
-  onPress: PropTypes.func,
-  disabled: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({

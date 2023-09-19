@@ -18,6 +18,7 @@ const Input = ({ style, name, placeholder, autoComplete, keyboardType, hidden, v
       value={value}
       onChangeText={onChangeText}
       name={name}
+      autoCapitalize='none'
     />
   );
 };

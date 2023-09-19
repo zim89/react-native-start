@@ -7,12 +7,4 @@ import CreatePostScreen from './CreatePostScreen';
 import CommentsScreen from './CommentsScreen';
 import MapScreen from './MapScreen';
 
-export {
-  LoginScreen,
-  RegisterScreen,
-  ProfileScreen,
-  CreatePostScreen,
-  PostsScreen,
-  CommentsScreen,
-  MapScreen
-};
+export { LoginScreen, RegisterScreen, ProfileScreen, CreatePostScreen, PostsScreen, CommentsScreen, MapScreen };

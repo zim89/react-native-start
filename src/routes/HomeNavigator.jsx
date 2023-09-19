@@ -7,7 +7,7 @@ import { GoBackButton, LogoutButton, TitleHeader } from '../components/elements'
 
 const Tabs = createBottomTabNavigator();
 
-const TabNavigator = () => {
+const HomeNavigator = () => {
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -62,10 +62,11 @@ const TabNavigator = () => {
           headerTitle: () => <TitleHeader label='Створити публікацію' />,
           headerLeft: () => <GoBackButton />,
           headerRight: false,
+          unmountOnBlur: true,
         }}
       />
       <Tabs.Screen name='Profile' component={ProfileScreen} options={{ headerShown: false }} />
     </Tabs.Navigator>
   );
 };
-export default TabNavigator;
+export default HomeNavigator;
