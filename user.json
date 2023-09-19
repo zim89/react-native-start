@@ -1,0 +1,15 @@
+{
+  "geolocation": {
+    "accuracy": 5,
+    "altitude": 0,
+    "altitudeAccuracy": -1,
+    "heading": -1,
+    "latitude": 37.785834,
+    "longitude": -122.406417,
+    "speed": -1
+  },
+  "id": "U4N4W3PpTc1nQkjbYihk",
+  "image": "https://firebasestorage.googleapis.com/v0/b/react-native-start-398406.appspot.com/o/post_images%2FADBE4993-AD7B-432F-9AE1-3C493858B721?alt=media&token=c2094d31-f08e-4133-bb58-71f0c21c856d",
+  "location": "Dnipro",
+  "title": "Market"
+}

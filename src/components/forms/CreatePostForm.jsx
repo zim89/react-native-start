@@ -1,75 +1,315 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  ImageBackground,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Camera } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import * as MediaLibrary from 'expo-media-library';
+import { collection, addDoc } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
-import { PostImage } from '../forms/image';
-import { InputMute } from '../forms/input';
-import { Button, DeleteButton } from '../elements';
+import { Button } from '../elements';
+import { db, storage } from '../../configs/firebase';
+import { selectUser } from '../../redux/slices/authSlice';
 
-const CreatePostForm = ({ style }) => {
-  const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
+export default function CreatePostForm({ style }) {
   const navigation = useNavigation();
+  const { uid: userId, username } = useSelector(selectUser);
 
-  const handleSubmit = () => {
-    console.log({ name, location });
-    setName('');
+  const [photo, setPhoto] = useState('');
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('');
+  const [geolocation, setGeolocation] = useState('');
+
+  const [hasPermission, setHasPermission] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
+  const [type, setType] = useState(Camera.Constants.Type.back);
+  const [isFocused, setIsFocused] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      setGeolocation(coords);
+    })();
+  }, []);
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+  const makePhoto = async () => {
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      setPhoto(uri);
+    }
+  };
+
+  const clearData = () => {
+    setPhoto('');
+    setTitle('');
     setLocation('');
   };
 
-  const handleDelete = () => {
-    setName('');
-    setLocation('');
+  const uploadPostToServer = async () => {
+    try {
+      const photo = await uploadPhotoToServer();
+      await addDoc(collection(db, 'posts'), {
+        photo,
+        title,
+        location,
+        geolocation,
+        owner: { userId, username },
+        createdAt: new Date().getTime(),
+      });
+    } catch (error) {
+      console.log('error', error.message);
+      throw error;
+    } finally {
+      clearData();
+      navigation.navigate('Posts');
+    }
+  };
+
+  const uploadPhotoToServer = async () => {
+    const fileName = Date.now().toString();
+    try {
+      const response = await fetch(photo);
+      const file = await response.blob();
+      const imageRef = ref(storage, `post_images/${fileName}`);
+      await uploadBytes(imageRef, file);
+
+      const processedPhoto = await getDownloadURL(imageRef);
+      return processedPhoto;
+    } catch (error) {
+      console.log('error', error.message);
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status === 'granted') {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+        if (!result.canceled) {
+          setPhoto(result.assets[0].uri);
+        }
+      }
+    } catch (error) {
+      console.log('error', error.message);
+    }
   };
 
   return (
-    <View style={style}>
-      <View style={styles.image}>
-        <PostImage />
-      </View>
+    <ScrollView>
+      {photo ? (
+        <ImageBackground source={{ uri: photo }} style={styles.postPhotoWrap}>
+          <TouchableOpacity
+            style={{ ...styles.cameraBtn, opacity: 0.4 }}
+            onPress={() => {
+              setPhoto('');
+            }}>
+            <Ionicons name='ios-camera' size={24} color={'#FFFFFF'} />
+          </TouchableOpacity>
+        </ImageBackground>
+      ) : (
+        <Camera style={styles.postPhotoWrap} type={type} ref={setCameraRef}>
+          <MaterialCommunityIcons
+            name='camera-flip'
+            size={22}
+            color={'#BDBDBD'}
+            style={styles.flipContainer}
+            onPress={() => {
+              setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back);
+            }}
+          />
+          <TouchableOpacity style={styles.cameraBtn} onPress={makePhoto}>
+            <Ionicons name='ios-camera' size={24} color={'#BDBDBD'} />
+          </TouchableOpacity>
+        </Camera>
+      )}
 
-      <View style={styles.topInput}>
-        <InputMute accent placeholder='Назва...' onChangeText={setName} value={name} />
-      </View>
+      {photo ? (
+        <Text style={styles.textWrap}>
+          <Text style={styles.text} onPress={pickImage}>
+            Редагувати фото
+          </Text>
+        </Text>
+      ) : (
+        <Text style={styles.textWrap}>
+          <Text style={styles.text} onPress={pickImage}>
+            Завантажте фото
+          </Text>
+        </Text>
+      )}
 
-      <View style={styles.bottomInput}>
-        <InputMute
-          placeholder='Місцевість...'
-          icon={<Feather name='map-pin' size={24} color='#dbdbdb' />}
-          onChangeText={setLocation}
-          value={location}
+      <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
+        <TextInput
+          name='title'
+          placeholder='Назва...'
+          placeholderTextColor={'#BDBDBD'}
+          style={isFocused === 'title' ? { ...styles.input, borderColor: '#FF6C00' } : { ...styles.input }}
+          value={title}
+          onChangeText={(value) => setTitle(value)}
+          onFocus={() => setIsFocused('title')}
+          onBlur={() => setIsFocused(null)}
         />
-      </View>
-
-      <Button style={styles.submitButton} label='Опублікувати' onPress={handleSubmit} />
-      <DeleteButton style={styles.deleteButton} />
-    </View>
+        <View>
+          <Feather name='map-pin' size={24} color={'#BDBDBD'} style={styles.locationIcon} />
+          <TextInput
+            name='location'
+            placeholder='Місцевість...'
+            placeholderTextColor={'#BDBDBD'}
+            style={
+              isFocused === 'location'
+                ? {
+                    ...styles.input,
+                    marginBottom: 32,
+                    paddingLeft: 28,
+                    borderColor: '#FF6C00',
+                  }
+                : { ...styles.input, marginBottom: 32, paddingLeft: 28 }
+            }
+            value={location}
+            onChangeText={(value) => setLocation(value)}
+            onFocus={() => setIsFocused('location')}
+            onBlur={() => setIsFocused(null)}
+          />
+        </View>
+      </KeyboardAvoidingView>
+      <Button
+        label='Опубліковати'
+        disabled={photo && title && location ? false : true}
+        style={{
+          ...styles.button,
+          backgroundColor: photo && title && location ? '#FF6C00' : '#F6F6F6',
+        }}
+        styleTitle={{
+          ...styles.title,
+          color: photo && title && location ? '#FFFFFF' : '#BDBDBD',
+        }}
+        onPress={uploadPostToServer}
+      />
+      <TouchableOpacity
+        style={styles.trashBtn}
+        onPress={clearData}
+        disabled={photo || title || location ? false : true}>
+        <Feather name='trash-2' size={24} color={'#BDBDBD'} />
+      </TouchableOpacity>
+    </ScrollView>
   );
-};
-
-CreatePostForm.propTypes = {
-  style: PropTypes.object,
-};
+}
 
 const styles = StyleSheet.create({
-  image: {
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 5,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 0.5,
+    borderBottomWidth: -0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.30)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.30)',
+  },
+  postPhotoWrap: {
+    flex: 1,
+    height: 250,
+    overflow: 'hidden',
+    backgroundColor: '#F6F6F6',
+    borderColor: '#E8E8E8',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  flipContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  cameraBtn: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textWrap: {
+    paddingTop: 8,
     marginBottom: 32,
   },
-  topInput: {
+  text: {
+    fontSize: 16,
+    fontFamily: 'Roboto-Regular',
+    color: '#BDBDBD',
+  },
+  input: {
+    height: 50,
+    width: '100%',
     marginBottom: 16,
+    borderBottomWidth: 1,
+    paddingBottom: 11,
+    borderColor: '#E8E8E8',
+    color: '#212121',
+    fontSize: 16,
   },
-  bottomInput: {
-    marginBottom: 32,
+  locationIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 0,
   },
-  submitButton: {
-    marginBottom: 32,
+  button: {
+    borderRadius: 100,
   },
-  deleteButton: {
-    marginTop: 'auto',
-    alignSelf: 'center',
+  trashBtn: {
+    width: 70,
+    borderRadius: 20,
+    backgroundColor: '#F6F6F6',
+    paddingHorizontal: 23,
+    paddingVertical: 8,
+    marginTop: 130,
+    marginBottom: 45,
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
 });
-
-export default CreatePostForm;

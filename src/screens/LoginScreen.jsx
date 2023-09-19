@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { KeyboardElement, BoxAuth, Background } from '../components/containers';
 import { LoginForm } from '../components/forms';

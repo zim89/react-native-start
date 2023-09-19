@@ -5,7 +5,7 @@ import { CreatePostForm } from '../components/forms';
 
 const CreatePostScreen = () => {
   return (
-    <KeyboardElement verticalOffset={-200}>
+    <KeyboardElement verticalOffset={-20}>
       <Box>
         <CreatePostForm style={styles.createPostForm} />
       </Box>

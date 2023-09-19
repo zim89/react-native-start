@@ -3,10 +3,12 @@
 # dependencies
 node_modules/
 
-# Expo
+# Expo and IDE
 .expo/
 dist/
 web-build/
+./idea
+./vscode
 
 # Native
 *.orig.*
