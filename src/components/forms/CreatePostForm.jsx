@@ -19,7 +19,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { collection, addDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
-import { Button } from '../elements';
+import { Button, Spinner } from '../elements';
 import { db, storage } from '../../configs/firebase';
 import { selectUser } from '../../redux/slices/authSlice';
 
@@ -36,6 +36,7 @@ export default function CreatePostForm({ style }) {
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [isFocused, setIsFocused] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -66,10 +67,34 @@ export default function CreatePostForm({ style }) {
     return <Text>No access to camera</Text>;
   }
 
+  function uriToBlob(uri) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      // If successful -> return with blob
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      // reject on error
+      xhr.onerror = function () {
+        reject(new Error('uriToBlob failed'));
+      };
+      // Set the response type to ‘blob’ - this means the server’s response
+      // will be accessed as a binary object
+      xhr.responseType = 'blob';
+      // Initialize the request. The third argument set to ‘true’ denotes
+      // that the request is asynchronous
+      xhr.open('GET', uri, true);
+      // Send the request. The ‘null’ argument means that no body content is given for the request
+      xhr.send(null);
+    });
+  }
+
   const makePhoto = async () => {
     if (cameraRef) {
+      setIsLoading(true);
       const { uri } = await cameraRef.takePictureAsync();
       setPhoto(uri);
+      setIsLoading(false);
     }
   };
 
@@ -102,8 +127,9 @@ export default function CreatePostForm({ style }) {
   const uploadPhotoToServer = async () => {
     const fileName = Date.now().toString();
     try {
-      const response = await fetch(photo);
-      const file = await response.blob();
+      // const response = await fetch(photo);
+      // const file = await response.blob();
+      const file = await uriToBlob(photo);
       const imageRef = ref(storage, `post_images/${fileName}`);
       await uploadBytes(imageRef, file);
 
@@ -134,7 +160,7 @@ export default function CreatePostForm({ style }) {
   };
 
   return (
-    <ScrollView>
+    <View style={styles.container}>
       {photo ? (
         <ImageBackground source={{ uri: photo }} style={styles.postPhotoWrap}>
           <TouchableOpacity
@@ -156,8 +182,12 @@ export default function CreatePostForm({ style }) {
               setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back);
             }}
           />
-          <TouchableOpacity style={styles.cameraBtn} onPress={makePhoto}>
-            <Ionicons name='ios-camera' size={24} color={'#BDBDBD'} />
+          <TouchableOpacity style={styles.cameraBtn} onPress={makePhoto} disabled={isLoading}>
+            {isLoading ? (
+              <Spinner size={24} color={photo ? '#fff' : '#bdbdbd'} />
+            ) : (
+              <Ionicons name='ios-camera' size={24} color={'#BDBDBD'} />
+            )}
           </TouchableOpacity>
         </Camera>
       )}
@@ -229,23 +259,23 @@ export default function CreatePostForm({ style }) {
         disabled={photo || title || location ? false : true}>
         <Feather name='trash-2' size={24} color={'#BDBDBD'} />
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 5,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 0.5,
-    borderBottomWidth: -0.5,
-    borderTopColor: 'rgba(0, 0, 0, 0.30)',
-    borderBottomColor: 'rgba(0, 0, 0, 0.30)',
+    // paddingHorizontal: 16,
+    // paddingTop: 5,
+    // backgroundColor: '#FFFFFF',
+    // borderTopWidth: 0.5,
+    // borderBottomWidth: -0.5,
+    // borderTopColor: 'rgba(0, 0, 0, 0.30)',
+    // borderBottomColor: 'rgba(0, 0, 0, 0.30)',
   },
   postPhotoWrap: {
-    flex: 1,
+    // flex: 1,
     height: 250,
     overflow: 'hidden',
     backgroundColor: '#F6F6F6',
@@ -307,8 +337,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F6F6',
     paddingHorizontal: 23,
     paddingVertical: 8,
-    marginTop: 130,
-    marginBottom: 45,
+    marginTop: 'auto',
+    // marginBottom: 45,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
