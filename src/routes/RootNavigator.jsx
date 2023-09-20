@@ -31,6 +31,7 @@ const RootNavigator = () => {
       initialRouteName='Home'
       screenOptions={{
         headerShown: false,
+        headerTitleAlign: 'center',
         headerRightContainerStyle: {
           paddingRight: 16,
         },
@@ -44,6 +45,7 @@ const RootNavigator = () => {
         component={CommentsScreen}
         options={{
           headerShown: true,
+          headerTitleAlign: 'center',
           headerTitle: () => <TitleHeader label='Коментарі' />,
           headerLeft: () => <GoBackButton />,
         }}
@@ -53,7 +55,8 @@ const RootNavigator = () => {
         component={MapScreen}
         options={{
           headerShown: true,
-          headerTitle: () => <TitleHeader label='Карта' />,
+          headerTitleAlign: 'center',
+          headerTitle: () => <TitleHeader label='Мапа' />,
           headerLeft: () => <GoBackButton />,
         }}
       />

@@ -51,6 +51,7 @@ const HomeNavigator = () => {
         name='Posts'
         component={PostsScreen}
         options={{
+          headerTitleAlign: 'center',
           headerTitle: () => <TitleHeader label='Публікації' />,
           headerLeft: false,
         }}
@@ -59,6 +60,7 @@ const HomeNavigator = () => {
         name='CreatePost'
         component={CreatePostScreen}
         options={{
+          headerTitleAlign: 'center',
           tabBarStyle: { display: 'none' },
           headerTitle: () => <TitleHeader label='Створити публікацію' />,
           headerLeft: () => <GoBackButton />,
