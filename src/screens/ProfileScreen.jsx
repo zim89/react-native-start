@@ -13,6 +13,7 @@ import { db } from '../configs/firebase';
 import { selectUser } from '../redux/slices/authSlice';
 
 import PostProfileItem from '../components/PostProfileItem';
+import { Background } from '../components/containers';
 
 const ProfileScreen = () => {
   const { uid: userId, username, picture: avatar } = useSelector(selectUser) ?? {};
@@ -52,8 +53,9 @@ const ProfileScreen = () => {
   };
 
   return (
-    <ImageBackground source={bgImage} style={styles.backgroundImage}>
+    <Background image={bgImage}>
       <View style={styles.container}>
+        {/* Logout Button */}
         <View style={styles.logoutBtn}>
           <LogoutButton />
         </View>
@@ -92,15 +94,17 @@ const ProfileScreen = () => {
           </View>
         )}
       </View>
-    </ImageBackground>
+    </Background>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 280,
+    minHeight: Dimensions.get('window').height - 280,
     position: 'relative',
     paddingTop: 92,
-    paddingBottom: 45,
+    // paddingBottom: 45,
     paddingHorizontal: 16,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,

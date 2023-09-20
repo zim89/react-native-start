@@ -13,7 +13,8 @@ const HomeNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarStyle: {
           paddingHorizontal: 90,
-          paddingVertical: 9,
+          paddingTop: 15,
+          height: 71,
         },
         tabBarItemStyle: {
           height: 40,
