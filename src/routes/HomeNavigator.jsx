@@ -14,6 +14,7 @@ const HomeNavigator = () => {
         tabBarStyle: {
           paddingHorizontal: 90,
           paddingTop: 15,
+          marginBottom: 15,
           height: 71,
         },
         tabBarItemStyle: {

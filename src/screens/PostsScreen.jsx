@@ -35,6 +35,7 @@ const PostsScreen = () => {
 
       {posts.length !== 0 && (
         <FlatList
+          showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           data={posts}
           keyExtractor={(item) => item.id}

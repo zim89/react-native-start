@@ -37,6 +37,7 @@ export default function CreatePostForm({ style }) {
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [isFocused, setIsFocused] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -106,6 +107,7 @@ export default function CreatePostForm({ style }) {
 
   const uploadPostToServer = async () => {
     try {
+      setIsSubmitting(true);
       const photo = await uploadPhotoToServer();
       await addDoc(collection(db, 'posts'), {
         photo,
@@ -121,6 +123,7 @@ export default function CreatePostForm({ style }) {
     } finally {
       clearData();
       navigation.navigate('Posts');
+      setIsSubmitting(false);
     }
   };
 
@@ -240,19 +243,34 @@ export default function CreatePostForm({ style }) {
           />
         </View>
       </KeyboardAvoidingView>
-      <Button
-        label='Опубліковати'
-        disabled={photo && title && location ? false : true}
-        style={{
-          ...styles.button,
-          backgroundColor: photo && title && location ? '#FF6C00' : '#F6F6F6',
-        }}
-        styleTitle={{
-          ...styles.title,
-          color: photo && title && location ? '#FFFFFF' : '#BDBDBD',
-        }}
-        onPress={uploadPostToServer}
-      />
+      {!isSubmitting ? (
+        <Button
+          label='Опубліковати'
+          disabled={photo && title && location ? false : true}
+          style={{
+            ...styles.button,
+            backgroundColor: photo && title && location ? '#FF6C00' : '#F6F6F6',
+          }}
+          styleTitle={{
+            ...styles.title,
+            color: photo && title && location ? '#FFFFFF' : '#BDBDBD',
+          }}
+          onPress={uploadPostToServer}
+        />
+      ) : (
+        <Button
+          label='Опубліковати'
+          disabled
+          style={{
+            ...styles.button,
+            backgroundColor: '#F6F6F6',
+          }}
+          styleTitle={{
+            ...styles.title,
+            color: '#BDBDBD',
+          }}
+        />
+      )}
       <TouchableOpacity
         style={styles.trashBtn}
         onPress={clearData}
@@ -341,5 +359,12 @@ const styles = StyleSheet.create({
     // marginBottom: 45,
     marginLeft: 'auto',
     marginRight: 'auto',
+  },
+  submitting: {
+    width: '100%',
+    height: 60,
+    marginHorizontal: 'auto',
+    borderRadius: 100,
+    backgroundColor: '#F6F6F6',
   },
 });
